@@ -1,6 +1,9 @@
 package com.foreks.utulities;
 
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.remote.MobileCapabilityType;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -9,68 +12,114 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 
-public class Driver {
-    private Driver() {
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
+public class Driver {
+
+    private Driver() {
     }
 
-    private static WebDriver driver;
+    /*
+    Making our 'driver' instance private so that it is not reachable from outside of the class.
+    We make it static, because we want it to run before everything else, and also we will use it in a static method
+     */
+    private static ThreadLocal<WebDriver> driverPool = new ThreadLocal<>();
 
-    public static WebDriver get() {
-        // Test
-        if (driver == null) {
-            // this line will tell which browser should open based on the value from properties file
-            String browser = ConfigurationReader.get("browser");
-            switch (browser) {
-                case "chrome":
-                    WebDriverManager.chromedriver().setup();
-                    driver = new ChromeDriver();
-                    break;
-                case "chrome-headless":
-                    WebDriverManager.chromedriver().setup();
-                    driver = new ChromeDriver(new ChromeOptions().setHeadless(true));
-                    break;
-                case "firefox":
-                    WebDriverManager.firefoxdriver().setup();
-                    driver = new FirefoxDriver();
-                    break;
-                case "firefox-headless":
-                    WebDriverManager.firefoxdriver().setup();
-                    driver = new FirefoxDriver(new FirefoxOptions().setHeadless(true));
-                    break;
-                case "ie":
-                    if (!System.getProperty("os.name").toLowerCase().contains("windows"))
-                        throw new WebDriverException("Your OS doesn't support Internet Explorer");
-                    WebDriverManager.iedriver().setup();
-                    driver = new InternetExplorerDriver();
-                    break;
+    /*
+    Creating re-usable utility method that will return same 'driver' instance everytime we call it.
+     */
+    public static WebDriver getDriver() {
 
-                case "edge":
-                    if (!System.getProperty("os.name").toLowerCase().contains("windows"))
-                        throw new WebDriverException("Your OS doesn't support Edge");
-                    WebDriverManager.edgedriver().setup();
-                    driver = new EdgeDriver();
-                    break;
+        if (driverPool.get() == null) {
 
-                case "safari":
-                    if (!System.getProperty("os.name").toLowerCase().contains("mac"))
-                        throw new WebDriverException("Your OS doesn't support Safari");
-                    WebDriverManager.getInstance(SafariDriver.class).setup();
-                    driver = new SafariDriver();
-                    break;
+            synchronized (Driver.class) {
+            /*
+            We read our browser type from configuration.properties file using
+            .getProperty method we creating in ConfigurationReader class.
+             */
+                String browserType = ConfigurationReader.getProperty("browser");
+
+            /*
+            Depending on the browser type our switch statement will determine
+            to open specific type of browser/driver
+             */
+                switch (browserType) {
+                    case "chrome":
+                        WebDriverManager.chromedriver().setup();
+                        driverPool.set(new ChromeDriver());
+                        driverPool.get().manage().window().maximize();
+                        driverPool.get().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+                        break;
+                    case "firefox":
+                        WebDriverManager.firefoxdriver().setup();
+                        driverPool.set(new FirefoxDriver());
+                        driverPool.get().manage().window().maximize();
+                        driverPool.get().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+                        break;
+                    case "chromeSSL":
+                        WebDriverManager.chromedriver().setup();
+                        ChromeOptions capability = new ChromeOptions();
+                        capability.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+                        capability.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS,true);
+                        driverPool.set(new ChromeDriver(capability));
+                        driverPool.get().manage().window().maximize();
+                        driverPool.get().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+                        break;
+                    case "remote-chromeSSL":
+                        WebDriverManager.chromedriver().setup();
+                        ChromeOptions remoteCapability = new ChromeOptions();
+                        remoteCapability.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+                        remoteCapability.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
+                        remoteCapability.setCapability("platform", Platform.ANY);
+                        try{
+                            driverPool.set(new RemoteWebDriver(new URL("http://18.212.6.39:4444/wd/hub"),remoteCapability));
+                        } catch (MalformedURLException e){
+                            e.printStackTrace();
+                        }
+                        driverPool.get().manage().window().maximize();
+                        driverPool.get().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+                        break;
+                    case "mobile":
+                        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+                        desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, Platform.ANDROID);
+                        desiredCapabilities.setCapability(MobileCapabilityType.VERSION, "8.0");
+                        desiredCapabilities.setCapability(MobileCapabilityType.APP, System.getProperty("user.dir")+"\\foreks.android_158_apps.evozi.com.apk");
+                        desiredCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Pixel_2");
+                        desiredCapabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, 20000);
+                        try {
+                            driverPool.set(new AppiumDriver<>(new URL("http://0.0.0.0:4723/wd/hub"),desiredCapabilities));
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        }
+
+
+                }
             }
-
         }
 
-        return driver;
+        /*
+        Same driver instance will be returned every time we call Driver.getDriver(); method
+         */
+        return driverPool.get();
+
+
     }
 
+    /*
+    This method makes sure we have some form of driver sesion or driver id has.
+    Either null or not null it must exist.
+     */
     public static void closeDriver() {
-        if (driver != null) {
-            driver.quit();
-            driver = null;
+        if (driverPool.get() != null) {
+            driverPool.get().quit();
+            driverPool.remove();
         }
     }
 }

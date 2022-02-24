@@ -1,5 +1,6 @@
 package com.foreks.pages;
 
+import com.foreks.utulities.Driver;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileBy;
 import io.appium.java_client.MobileElement;
@@ -9,28 +10,30 @@ import org.openqa.selenium.WebElement;
 
 import java.net.URL;
 
-public class ForeksPages extends BasePage {
+public class ForeksPages {
 
-    public static AppiumDriver<MobileElement> driver;
 
-    public static WebElement kapat = driver.findElement(MobileBy.AccessibilityId("Kapat"));
-    public static WebElement sayfam = driver.findElement(MobileBy.AccessibilityId("SAYFAM"));
-    public static WebElement varant = driver.findElement(By.xpath("/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/androidx.drawerlayout.widget.DrawerLayout/android.widget.RelativeLayout/android.widget.LinearLayout/android.widget.LinearLayout[4]/android.widget.ImageView"));
-    public static WebElement yükselenlerDüşenler = driver.findElement(MobileBy.AccessibilityId("Yükselenler / Düşenler"));
-    public static WebElement YÜKSELENLERdüşenler = driver.findElement(MobileBy.AccessibilityId("YÜKSELENLER / DÜŞENLER"));
-    public static WebElement birinciSubTab = driver.findElement(By.xpath("(//*[@class='android.widget.TextView'])[7]"));
-    public static WebElement ikinciSubTab = driver.findElement(By.xpath("(//*[@class='android.widget.TextView'])[8]"));
-    public static WebElement üçüncüSubTab = driver.findElement(By.xpath("(//*[@class='android.widget.TextView'])[9]"));
-    public static WebElement yükselenler = driver.findElement(MobileBy.AccessibilityId("Yükselenler"));
-    public static WebElement düşenler = driver.findElement(MobileBy.AccessibilityId("DÜŞENLER"));
+
+
+
+    public  WebElement kapat = Driver.getDriver().findElement(MobileBy.AccessibilityId("Kapat"));
+    public  WebElement sayfam = Driver.getDriver().findElement(MobileBy.AccessibilityId("SAYFAM"));
+    public  WebElement varant = Driver.getDriver().findElement(By.xpath("/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/androidx.drawerlayout.widget.DrawerLayout/android.widget.RelativeLayout/android.widget.LinearLayout/android.widget.LinearLayout[4]/android.widget.ImageView"));
+    public  WebElement yükselenlerDüşenler = Driver.getDriver().findElement(MobileBy.AccessibilityId("Yükselenler / Düşenler"));
+    public  WebElement YÜKSELENLERdüşenler = Driver.getDriver().findElement(MobileBy.AccessibilityId("YÜKSELENLER / DÜŞENLER"));
+    public  WebElement birinciSubTab = Driver.getDriver().findElement(By.xpath("(//*[@class='android.widget.TextView'])[7]"));
+    public  WebElement ikinciSubTab = Driver.getDriver().findElement(By.xpath("(//*[@class='android.widget.TextView'])[8]"));
+    public  WebElement üçüncüSubTab = Driver.getDriver().findElement(By.xpath("(//*[@class='android.widget.TextView'])[9]"));
+    public  WebElement yükselenler = Driver.getDriver().findElement(MobileBy.AccessibilityId("Yükselenler"));
+    public  WebElement düşenler = Driver.getDriver().findElement(MobileBy.AccessibilityId("DÜŞENLER"));
 
     public void farklarArtan(){
         boolean flag = true;
         WebElement ilk, ikinci ;
         String ilk1,ikinci2;
         for (int i = 1; i < 10; i++) {
-            ilk = driver.findElement(By.xpath("(//*[@resource-id='foreks.android:id/rowWarrantSymbolList_textView_column3'])["+i+"]"));
-            ikinci = driver.findElement(By.xpath("(//*[@resource-id='foreks.android:id/rowWarrantSymbolList_textView_column3'])["+(i+1)+"]"));
+            ilk = Driver.getDriver().findElement(By.xpath("(//*[@resource-id='foreks.android:id/rowWarrantSymbolList_textView_column3'])["+i+"]"));
+            ikinci = Driver.getDriver().findElement(By.xpath("(//*[@resource-id='foreks.android:id/rowWarrantSymbolList_textView_column3'])["+(i+1)+"]"));
             ilk1=ilk.getText();
             ikinci2=ikinci.getText();
             ilk1=ilk1.substring(1);
@@ -52,8 +55,8 @@ public class ForeksPages extends BasePage {
         WebElement ilk, ikinci ;
         String ilk1,ikinci2;
         for (int i = 1; i < 10; i++) {
-            ilk =driver.findElement(By.xpath("(//*[@resource-id='foreks.android:id/rowWarrantSymbolList_textView_column3'])["+i+"]"));
-            ikinci = driver.findElement(By.xpath("(//*[@resource-id='foreks.android:id/rowWarrantSymbolList_textView_column3'])["+(i+1)+"]"));
+            ilk =Driver.getDriver().findElement(By.xpath("(//*[@resource-id='foreks.android:id/rowWarrantSymbolList_textView_column3'])["+i+"]"));
+            ikinci = Driver.getDriver().findElement(By.xpath("(//*[@resource-id='foreks.android:id/rowWarrantSymbolList_textView_column3'])["+(i+1)+"]"));
             ilk1=ilk.getText();
             ikinci2=ikinci.getText();
             ilk1=ilk1.substring(1);
@@ -71,14 +74,14 @@ public class ForeksPages extends BasePage {
     }
 
     public void navigateBack(){
-        driver.navigate().back();
+        Driver.getDriver().navigate().back();
         return;
     }
 
-    public void closeApp(){
-        driver.closeApp();
-        return;
-    }
+    //public void closeApp(){
+      //  Driver.getDriver().closeApp();
+        //return;
+    //}
 
 
 

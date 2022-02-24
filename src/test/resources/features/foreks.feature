@@ -1,8 +1,6 @@
 @foreks
 Feature: Yükselen ve azalan varyantlar
 
-  Background: Mobil uygulamaya giriş
-    Given Kullanıcı mobil uygulamaya verilen aygıtla giriş yapar
 
   Scenario: Kullanıcı varant tabini test eder
     Given Kullanıcı varant tabine yönlendirilir
